@@ -1,9 +1,6 @@
 @import "tailwindcss";
 
-.primary-500 {
-    @apply bg-[#493D9E];
-}
 
-.primary-300 {
-    @apply bg-[#B2A5FF];
+.transition {
+    @apply transition-all ease-in-out duration-200;
 }
