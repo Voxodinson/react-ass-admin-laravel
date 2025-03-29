@@ -10,6 +10,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@fontsource/roboto": "^5.2.5",
+    "@mui/icons-material": "^7.0.1",
+    "@mui/material": "^7.0.1",
+    "@mui/styled-engine-sc": "^7.0.1",
     "@tailwindcss/vite": "^4.0.17",
     "bootstrap": "^5.3.3",
     "lucide-react": "^0.484.0",
@@ -17,6 +23,7 @@
     "react-bootstrap": "^2.10.9",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.4.0",
+    "styled-components": "^6.1.16",
     "tailwindcss": "^4.0.17"
   },
   "devDependencies": {

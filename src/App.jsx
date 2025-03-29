@@ -16,14 +16,14 @@ import Orders from "./pages/Orders";
 function App() {
     return (
         <div 
-            className="w-full h-[100vh] flex">
+            className="w-full h-[100vh] flex p-2 gap-2">
             <div 
-                className="w-[20%] border-r-[1px] border-gray-200">
+                className="w-[20%]">
                 <Sidebar/>
             </div>
-            <div className="w-[calc(100%-20%)] bg-gray-400">
+            <div className="w-[calc(100%-20%)] bg-gray-400 rounded-md overflow-hidden border-[1px] border-gray-200">
                 <Navbar/>
-                <div className="h-[calc(100%-70px)]">
+                <div className="h-[calc(100%-55px)] overflow-auto bg-white pr-1">
                     <Routes>
                         <Route element={<Layout/>}>
                             <Route path="/" element={<Dashboard />} />
