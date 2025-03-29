@@ -1,96 +1,108 @@
-import React from 'react'
-import { useLocation } from 'react-router-dom'
-import { useState } from 'react';
-import ConfirmDialog from './ConfirmDialog';
-import Logo from '../assets/images/logo_nobg.png';
+import React, { useState } from "react";
+import { useLocation } from "react-router-dom";
+import ConfirmDialog from "./ConfirmDialog";
 
+import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
+import Popover from "@mui/material/Popover";
+
+import { Success } from "./AlertsComponent";
+
+import {
+    LogOut
+} from 'lucide-react';
+import UserPhoto from '../assets/images/user_image.jpg';
 const Navbar = () => {
     const location = useLocation();
-    const [isOpenDropdown, setOpenDropdown] = useState(false);
+    const [anchorEl, setAnchorEl] = useState(null);
+    const [isOpenDialog, setOpenDialog] = useState(false);
 
-    const toggleDropdown = () => {
-        setOpenDropdown(!isOpenDropdown);
-    };
+    const openPopover = Boolean(anchorEl);
+
     const getPageName = (pathname) => {
         const pathToPageMap = {
-            '/': 'Home',
-            '/product_management': 'Product List',
-            '/order_management': 'Order List',
-            '/user_management': 'User List',
-            '/feedback': 'Feedback List',
-            '/company_profile': 'Company Profile',
-            '/social_media': 'Social Media',
-            '/setting': 'Setting'
-        }
+            "/": "Home",
+            "/product_management": "Product List",
+            "/order_management": "Order List",
+            "/user_management": "User List",
+            "/feedback": "Feedback List",
+            "/company_profile": "Company Profile",
+            "/social_media": "Social Media",
+            "/setting": "Setting",
+        };
 
-        const pageName = pathToPageMap[pathname]
-
-        if (!pageName) {
-            const segments = pathname.split('/').filter(Boolean)
-            return segments.length ? segments[segments.length - 1] : 'Home'
-        }
-
-        return pageName
-    }
+        return pathToPageMap[pathname] || pathname.split("/").filter(Boolean).pop() || "Home";
+    };
 
     const pageName = getPageName(location.pathname);
 
-    //confirm dialog
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
-    
-    const openDialog = () => {
-        setIsDialogOpen(true);
-    }
-    const handleConfirm = () => {
-        setIsDialogOpen(false);
+    const handleOpenPopover = (event) => {
+        setAnchorEl(event.currentTarget);
     };
-    
-    const handleCancel = () => {
-        setIsDialogOpen(false);
-    };
-    return (
-        <div className='w-full h-[70px] flex justify-between px-3 items-center bg-purple-400 border-b-[1px] border-gray-200'>
-            <span
-                className='capitalize text-[1.2rem]'>
-                { pageName }
-            </span>
-            <div 
-                className="relative inline-block text-left">
-                <button
-                    onClick={toggleDropdown}
-                    className="bg-blue-500 w-[50px] h-[50px] rounded-full overflow-hidden text-white px-4 py-2 focus:outline-none">
-                    <img 
-                        src={Logo} 
-                        alt="use profile"
-                        className='w-full h-full object-cover'/>
-                </button>
-                {isOpenDropdown && (
-                    <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
-                        <ul>
-                            <li>
-                                <button 
-                                    onClick={()=> {
-                                        openDialog();
-                                        if(isDialogOpen === true){
-                                            isOpenDropdown === false;
-                                        }
-                                    }}>
-                                    Open Confirm Dialog
-                                </button>
-                                {isDialogOpen && (
-                                    <ConfirmDialog
-                                        message="Are you sure?"
-                                        onConfirm={handleConfirm}
-                                        onCancel={handleCancel}
-                                    />
-                                )}
-                            </li>
-                        </ul>
-                    </div>
-                )}
-            </div>
-        </div>
-    )
-}
 
-export default Navbar
+    const handleClosePopover = () => {
+        setAnchorEl(null);
+    };
+
+    const handleOpenDialog = () => {
+        handleClosePopover();
+        setOpenDialog(true);
+    };
+
+    const handleCloseDialog = () => {
+        setOpenDialog(false);
+    };
+
+    const handleConfirm = () => {
+        console.log("User agreed!");
+        setOpenDialog(false);
+    };
+
+    return (
+        <div 
+            className="w-full h-[55px] border-b-[1px] border-gray-200 flex justify-between overflow-hidden px-3 items-center bg-white">
+            <span 
+                className="capitalize text-[1.2rem]">{pageName}</span>
+            <div>
+                <Button 
+                    variant="none"
+                    className="w-[70px] cursor-pointer h-[70px] transition p-0 rounded-full overflow-hidden" 
+                    onClick={handleOpenPopover}>
+                    <img 
+                        src={UserPhoto} 
+                        alt="user profile"
+                        className="w-full"/>
+                </Button>
+                <Popover
+                    open={openPopover}
+                    anchorEl={anchorEl}
+                    onClose={handleClosePopover}
+                    anchorOrigin={{
+                        vertical: "bottom",
+                        horizontal: "left",
+                    }}>
+                    <Typography 
+                        sx={{ p: 2 }}>
+                        <Button 
+                            variant="outlined" 
+                            color="error"
+                            className="pr-10 flex gap-10"
+                            onClick={handleOpenDialog}>
+                            <LogOut/> Logout
+                        </Button>
+                    </Typography>
+                </Popover>
+                <ConfirmDialog
+                    open={isOpenDialog}
+                    onConfirm={handleConfirm}
+                    onClose={handleCloseDialog}
+                    title="Are you sure! You want to signing out?"
+                    description="Let Google help apps determine location. This means sending anonymous location data to Google, even when no apps are running."
+                />
+            </div>
+            {Success('Successfully')}
+        </div>
+    );
+};
+
+export default Navbar;
