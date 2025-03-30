@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import { Navbar, Sidebar } from "../src/components";
 import Layout from "./Layout";
 import LoginLayout from "./LoginLayout";
@@ -22,19 +22,18 @@ function App() {
     const { user } = useAuth();
 
     return (
-        <div className={`w-full h-[100vh] items-start justify-start flex gap-2 bg-gray-100 p-${user ? '2' : '0'}`}>
+        <div className={`w-[100vw] h-[100vh] items-start justify-start flex gap-2 bg-gray-100 p-${user ? '2' : '0'}`}>
             {user && (
-                <div className="w-[20%] h-full">
+                <div className="w-[20%] h-full sticky top-0">
                     <Sidebar />
                 </div>
             )}
-
-            <div className={`w-[${user ? '80%' : '100%'}] overflow-hidden `}>
+            <div className="w-[80%] h-[calc(100vh-20.3vh)]">
                 {user && <Navbar />}
                 <Routes>
                     {!user && (
-                        <Route element={<LoginLayout />}>
-                            <Route path="/login" element={<Login />} />
+                        <Route path="/" element={<LoginLayout />}>
+                            <Route path="/" element={<Login />} />
                         </Route>
                     )}
                     {user && (
@@ -49,7 +48,6 @@ function App() {
                             <Route path="/setting" element={<Setting />} />
                         </Route>
                     )}
-
                     <Route path="*" element={<Page404 />} />
                 </Routes>
             </div>

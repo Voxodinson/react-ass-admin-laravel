@@ -55,7 +55,7 @@ const Navbar = () => {
         logout();
         setOpenDialog(false);
     };
-
+    
     return (
         <div className="w-full h-[55px] border-[1px] rounded-md border-gray-200 flex justify-between overflow-hidden px-3 items-center bg-white">
             <span className="capitalize text-[1.2rem]">{pageName}</span>
@@ -95,7 +95,6 @@ const Navbar = () => {
                     description="This will log you out of the application."
                 />
             </div>
-            {Success('Successfully logged out')}
         </div>
     );
 };

@@ -26,14 +26,12 @@ const TableComponent = ({ columns, data, per_page }) => {
                 className='border-[1px] border-black bg-white rounded-md overflow-hidden shadow-none'>
                 <TableHead
                     className='bg-purple-400'>
-                    <TableRow
-                        className=' font-semibold text-[.8rem uppercase'>
+                    <TableRow className='font-semibold text-[.8rem] uppercase'>
                         {columns.map((column) => (
                             <TableCell 
                                 key={column.id} 
                                 align={column.align}>
-                                <span
-                                    className='text-white !important'>
+                                <span className='text-white'>
                                     {column.label}
                                 </span>
                             </TableCell>

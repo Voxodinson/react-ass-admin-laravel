@@ -16,7 +16,7 @@ export default function SelectMenu({
         onChange(event.target.value);
     };
 return (
-    <FormControl className='w-full h-fit relative'>
+    <FormControl className='w-full h-fit relative' size='small'>
         <InputLabel 
             id={`${label}-select-label`}>
             {label}
