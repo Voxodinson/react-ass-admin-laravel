@@ -1,39 +1,42 @@
-// src/context/AuthContext.jsx
-import React, { createContext, useState, useContext } from 'react';
+import { createContext, useContext, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
-// Create a context for authentication
 const AuthContext = createContext();
 
-// Create a provider component
 export const AuthProvider = ({ children }) => {
-    const [authenticated, setAuthenticated] = useState(false); // Track authentication state
+    const [user, setUser] = useState(null);
+    const navigate = useNavigate();
 
-    // Example of how you could check authentication (this logic should be customized)
-    const checkAuth = () => {
-        const token = localStorage.getItem("token");
-        if (token) {
-            setAuthenticated(true); // or some logic to check if the token is valid
+    useEffect(() => {
+        const storedUser = localStorage.getItem("user");
+        if (storedUser) {
+            setUser(JSON.parse(storedUser));
         }
-    };
+    }, []);
 
-    const login = (token) => {
-        localStorage.setItem("token", token);
-        setAuthenticated(true);
+    const login = (userData) => {
+        setUser(userData);
+        localStorage.setItem("user", JSON.stringify(userData));
+        navigate("/");
     };
 
     const logout = () => {
-        localStorage.removeItem("token");
-        setAuthenticated(false);
+        setUser(null);
+        localStorage.removeItem("user");
+        navigate("/login");
     };
 
     return (
-        <AuthContext.Provider value={{ authenticated, login, logout, checkAuth }}>
+        <AuthContext.Provider value={{ user, login, logout }}>
             {children}
         </AuthContext.Provider>
     );
 };
 
-// Custom hook to use the auth context
 export const useAuth = () => {
-    return useContext(AuthContext);
+    const context = useContext(AuthContext);
+    if (!context) {
+        throw new Error("useAuth must be used within an AuthProvider");
+    }
+    return context;
 };
