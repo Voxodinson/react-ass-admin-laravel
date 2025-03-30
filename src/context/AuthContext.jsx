@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
+import { Message } from "../context/AlertProvider";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
@@ -17,13 +17,14 @@ export const AuthProvider = ({ children }) => {
     const login = (userData) => {
         setUser(userData);
         localStorage.setItem("user", JSON.stringify(userData));
-        navigate("/");
     };
+    
 
     const logout = () => {
         setUser(null);
         localStorage.removeItem("user");
-        navigate("/login");
+        Message("Your are logout successfully...!", "success");
+        navigate("/");
     };
 
     return (

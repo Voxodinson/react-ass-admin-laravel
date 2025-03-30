@@ -3,6 +3,9 @@ import { login } from "../services/authService";
 import TextField from '@mui/material/TextField';
 import EcomBG from '../assets/images/ecom_bg.jpg';
 import { Link } from "react-router-dom";
+import { Message } from "../context/AlertProvider";
+
+
 const Login = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -12,11 +15,17 @@ const Login = () => {
         try {
             const userData = await login(email, password);
             localStorage.setItem("user", JSON.stringify(userData));
-            window.location.href = "/"; // Redirect to dashboard
+    
+            Message("Your are login successfully...!", "success");
+    
+            setTimeout(() => {
+                window.location.href = "/";
+            }, 1000);
         } catch (error) {
-            alert("Login failed. Please check your credentials.");
+            Message("Login failed. Please check your credentials.", "error");
         }
     };
+    
 
     return (
         <div className="w-full h-full flex items-center justify-center bg-white">
