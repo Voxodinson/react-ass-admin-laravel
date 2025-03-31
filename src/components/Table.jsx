@@ -18,14 +18,14 @@ const TableComponent = ({ columns, data, per_page }) => {
     const paginatedRows = data.slice((page - 1) * per_page, page * per_page);
 
     return (
-        <div className="border-[1px] border-gray-200 p-2 rounded-md overflow-hidden bg-purple-100">
+        <div className="border-[1px] border-gray-200 p-2 rounded-md overflow-hidden bg-[#E4EFE7]">
             <Table 
                 sx={{ minWidth: 650 }} 
                 size="small" 
                 aria-label="a dense table"
                 className='border-[1px] border-black bg-white rounded-md overflow-hidden shadow-none'>
                 <TableHead
-                    className='bg-purple-400'>
+                    className='bg-[#5F99AE]'>
                     <TableRow className='font-semibold text-[.8rem] uppercase'>
                         {columns.map((column) => (
                             <TableCell 
