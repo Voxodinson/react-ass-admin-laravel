@@ -1,7 +1,7 @@
 import React from 'react';
 import TableComponent from '../components/Table';
 import SeleMenu from '../components/SelectMenu'
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
     Plus, 
     CircleX,
@@ -16,7 +16,7 @@ import Modal from '@mui/material/Modal';
 import Fade from '@mui/material/Fade';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
-import ChoosePhoto from '../components/ChoosePhoto';
+import ChooseMultiplePhoto from '../components/ChooseMultiplePhoto';
 
 const columns = [
     { 
@@ -39,28 +39,27 @@ const data = [
     { 
         image: 'https://letsenhance.io/static/73136da51c245e80edc6ccfe44888a99/1015f/MainBefore.jpg', 
         name: 'Item 3' 
+    },
+    { 
+        image: 'https://letsenhance.io/static/73136da51c245e80edc6ccfe44888a99/1015f/MainBefore.jpg', 
+        name: 'Item 3' 
+    },
+    { 
+        image: 'https://letsenhance.io/static/73136da51c245e80edc6ccfe44888a99/1015f/MainBefore.jpg', 
+        name: 'Item 3' 
     }
 ];
 
 //style
 export default function ProductList() {
-    const [selectedAge, setSelectedAge] = React.useState('');
-    const [openModal, setOpenModal] = React.useState(false);
-    const ageOptions = [
-        { value: 10, label: 'Ten' },
-        { value: 20, label: 'Twenty' },
-        { value: 30, label: 'Thirty' },
-    ];
-    const [file, setFile] = useState(null);
-    const [filePreview, setFilePreview] = useState(null);
+    const [selectType, setSelectedType] = React.useState('');
     
-    const [formData, setFormData] = useState({
-        name: '',
-        email: '',
-        age: '',
-        address: '',
-        profilePhoto: null,
-    });
+    const [openModal, setOpenModal] = React.useState(false);
+    const productType = [
+        { value: 'men', label: 'Men' },
+        { value: 'women', label: 'Women' }
+    ];
+    
     /**
      * begin::some logical in this page
      */
@@ -68,6 +67,9 @@ export default function ProductList() {
     const handleCloseModal = () => setOpenModal(false);
 
     //input handle change
+    const handleSubmit = () => {
+        console.log(formData)
+    }
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData((prevData) => ({
@@ -77,49 +79,48 @@ export default function ProductList() {
     };
 
     //selct handle change
-    const handleAgeChange = (newValue) => {
-        setSelectedAge(newValue);
-        console.log(newValue)
+    const handleSelectType = (newValue) => {
+        setSelectedType(newValue);
     };
 
     //file handle channge
-    const handleFileChange = (file) => {
-        setFile(file);
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            setFilePreview(reader.result);
-        };
-        if (file) reader.readAsDataURL(file); 
-    };
+    const [images, setImages] = useState([]);
 
-    //submit handle 
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        console.log('Form Data:', formData);
-        // Submit the form data to the server or handle the logic here
+    const handleFileChange = (files) => {
+        console.log('Selected files:', files);
+        setImages(files);
     };
     /**
      * End::some logical in this page
      */
+
+    const [formData, setFormData] = useState({
+        name: '',
+        email: '',
+        age: '',
+        address: '',
+        profilePhoto: useEffect(() => {}, [images])
+        
+    });
 return (
     <div 
-        className='w-full h-full'>
+        className='w-full h-[81.5vh]'>
         <div 
             className="w-full p-2 bg-white rounded-md flex items-center justify-between gap-2 mt-3 border-gray-200 border-[1px]">
             <div className="w-fit flex gap-3">
+                <TextField
+                    label="Search Product"
+                    id="outlined-size-small"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    size="small"
+                    className='w-[calc(98%/2)]'/>
                 <div className="w-[300px]">
                     <SeleMenu
-                        label="Age"
-                        data={ageOptions}
-                        value={selectedAge}
-                        onChange={handleAgeChange}/>
-                </div>
-                <div className="w-[300px]">
-                    <SeleMenu
-                        label="Age"
-                        data={ageOptions}
-                        value={selectedAge}
-                        onChange={handleAgeChange}/>
+                        label="Product Type"
+                        data={productType}
+                        value={selectType}
+                        onChange={handleSelectType}/>
                 </div>
             </div>
             <Button
@@ -165,42 +166,46 @@ return (
                         onClick={handleCloseModal}/>
                 </div>
                 <div 
-                    className="w-full h-fit pt-6 pb-3 px-3">
+                    className="w-full h-fit pt-6 pb-3 px-3 max-h-[80vh] overflow-auto">
                     <form 
                         onSubmit={handleSubmit}
-                        className='w-full flex flex-wrap gap-3'>
-                        <ChoosePhoto 
-                            name="coverPhoto"
-                            onFileChange={handleFileChange} />
-                        <TextField
-                            label="Product Name"
-                            id="outlined-size-small"
-                            size="small"
-                            name='name'
-                            value={formData.name}
-                            onChange={handleInputChange}
-                            className='w-[calc(99%/2)]'
-                            />
-                        <TextField
-                            label="Size"
-                            id="outlined-size-small"
-                            value={formData.name}
-                            onChange={handleInputChange}
-                            size="small"
-                            className='w-[calc(98%/2)]'/>
-                        <TextField
-                            label="Size"
-                            id="outlined-size-small"
-                            defaultValue="Small"
-                            size="small"
-                            className='w-[calc(99%/2)]'
-                            />
-                        <TextField
-                            label="Size"
-                            id="outlined-size-small"
-                            defaultValue="Small"
-                            size="small"
-                            className='w-[calc(98%/2)]'/>
+                        className='w-full flex flex-wrap items-start justify-start gap-3'>
+                        <div className="w-[200px]">
+                            <ChooseMultiplePhoto 
+                                onFileChange={handleFileChange} 
+                                name="photos"/>
+                        </div>
+                        <div className="w-[calc(97%-200px)] flex items-start justify-start gap-2 flex-wrap">
+                            <TextField
+                                label="Product Name"
+                                id="outlined-size-small"
+                                size="small"
+                                name='name'
+                                value={formData.name}
+                                onChange={handleInputChange}
+                                className='w-[calc(99%/2)]'/>
+                            <TextField
+                                label="Size"
+                                id="outlined-size-small"
+                                value={formData.size}
+                                onChange={handleInputChange}
+                                size="small"
+                                className='w-[calc(98%/2)]'/>
+                            <TextField
+                                label="Size"
+                                id="outlined-size-small"
+                                defaultValue="Small"
+                                size="small"
+                                className='w-[calc(99%/2)]'
+                                />
+                            <TextField
+                                label="Size"
+                                id="outlined-size-small"
+                                defaultValue="Small"
+                                size="small"
+                                className='w-[calc(98%/2)]'/>
+                        </div>
+                       
                         <TextareaAutosize
                             maxRows={4}
                             aria-label="maximum height"

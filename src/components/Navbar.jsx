@@ -4,7 +4,6 @@ import ConfirmDialog from "./ConfirmDialog";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import Popover from "@mui/material/Popover";
-import { Success } from "./AlertsComponent";
 import { useAuth } from '../context/AuthContext';
 import { LogOut } from 'lucide-react';
 import UserPhoto from '../assets/images/user_image.jpg';
@@ -13,7 +12,6 @@ const Navbar = () => {
     const location = useLocation();
     const [anchorEl, setAnchorEl] = useState(null);
     const [isOpenDialog, setOpenDialog] = useState(false);
-
     const openPopover = Boolean(anchorEl);
 
     const { logout } = useAuth();
@@ -58,7 +56,9 @@ const Navbar = () => {
     
     return (
         <div className="w-full h-[55px] border-[1px] rounded-md border-gray-200 flex justify-between overflow-hidden px-3 items-center bg-white">
-            <span className="capitalize text-[1.2rem]">{pageName}</span>
+            <span className="capitalize text-[1.2rem]">
+                {pageName}
+            </span>
             <div>
                 <Button
                     variant="none"
