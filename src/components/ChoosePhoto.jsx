@@ -28,8 +28,8 @@ export default function ChoosePhoto({ onFileChange, name, onSubmit }) {
   return (
     <div className="flex flex-col items-center space-y-4">
         <label className="flex items-center w-[200px] bg-blue-500 text-white py-2 px-4 rounded cursor-pointer hover:bg-blue-600">
-            <p className=' w-full text-center'>
-                Choose Photo
+            <p className='text-center flex items-center gap-3 w-full'>
+                <Image />Choose Photo
             </p>
             <input
                 type="file"

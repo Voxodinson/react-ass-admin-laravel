@@ -13,10 +13,14 @@ const Login = () => {
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
-            const userData = await login(email, password);
-            localStorage.setItem("user", JSON.stringify(userData));
+            const response = await login(email, password);  // Assuming your login function returns a response with the token
+            const token = response.data.token;  // Get the token from the response
+            localStorage.setItem("token", token);  // Store token in localStorage
     
-            Message("Your are login successfully...!", "success");
+            // Optionally store user data if needed
+            localStorage.setItem("user", JSON.stringify(response.data.user));  // Store user details if necessary
+    
+            Message("You are logged in successfully!", "success");
     
             setTimeout(() => {
                 window.location.href = "/";
@@ -25,6 +29,7 @@ const Login = () => {
             Message("Login failed. Please check your credentials.", "error");
         }
     };
+    
     
 
     return (
