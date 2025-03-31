@@ -13,12 +13,11 @@ const Login = () => {
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
-            const response = await login(email, password);  // Assuming your login function returns a response with the token
-            const token = response.data.token;  // Get the token from the response
-            localStorage.setItem("token", token);  // Store token in localStorage
+            const response = await login(email, password);
+            const token = response.data.token;
+            localStorage.setItem("token", token);  
     
-            // Optionally store user data if needed
-            localStorage.setItem("user", JSON.stringify(response.data.user));  // Store user details if necessary
+            localStorage.setItem("user", JSON.stringify(response.data.user));  
     
             Message("You are logged in successfully!", "success");
     
@@ -30,8 +29,6 @@ const Login = () => {
         }
     };
     
-    
-
     return (
         <div className="w-full h-full flex items-center justify-center bg-white">
             <div className="p-8 rounded-lg w-1/2">
