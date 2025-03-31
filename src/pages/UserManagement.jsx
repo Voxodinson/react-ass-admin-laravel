@@ -40,7 +40,7 @@ export default function UserManagement() {
     ];
     return (
         <div 
-            className='w-full h-full'>
+            className='w-full h-[80vh]'>
             <div 
                 className="w-full p-2 bg-white rounded-md flex gap-2 mt-3 border-gray-200 border-[1px]">
                 <div className="w-[300px]">

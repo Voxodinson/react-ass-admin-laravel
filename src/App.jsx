@@ -3,6 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import { Navbar, Sidebar } from "../src/components";
 import Layout from "./Layout";
 import LoginLayout from "./LoginLayout";
+
 // Pages
 import UserManagement from "./pages/UserManagement";
 import Dashboard from "./pages/Dashboard";
@@ -28,7 +29,7 @@ function App() {
                     <Sidebar />
                 </div>
             )}
-            <div className="w-[80%] h-[calc(100vh-20.3vh)]">
+            <div className="w-[80%]">
                 {user && <Navbar />}
                 <Routes>
                     {!user && (

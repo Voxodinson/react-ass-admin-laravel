@@ -23,7 +23,7 @@ export default function ConfirmDialog({
                 id="alert-dialog-title"
                 className="text-yellow-500 flex gap-4 items-center font-thin">
                     <CircleAlert 
-                        trokeWidth={0.5}
+                        strokeWidth={0.5}
                         size={50} />
                     {title}
             </DialogTitle>
