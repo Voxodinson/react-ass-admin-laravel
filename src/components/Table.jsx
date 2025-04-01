@@ -2,13 +2,16 @@ import * as React from 'react';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
 import Pagination from '@mui/material/Pagination';
-
-const TableComponent = ({ columns, data, per_page }) => {
+import NoImage from '../assets/images/no_image.jpg'
+import { Button } from '@mui/material';
+import { 
+    FilePenLine, 
+    Trash2 
+} from 'lucide-react';
+const TableComponent = ({ columns, data, per_page, onEdit, onDelete }) => {
     const [page, setPage] = React.useState(1);
 
     const handlePageChange = (event, value) => {
@@ -42,14 +45,35 @@ const TableComponent = ({ columns, data, per_page }) => {
                     {paginatedRows.map((row, index) => (
                         <TableRow key={index} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                             {columns.map((column) => (
-                                <TableCell key={column.id} align={column.align}>
+                                <TableCell 
+                                    key={column.id} 
+                                    align={column.align}
+                                    sx={{ minWidth: column.minWidth || 100 }}>
                                     {column.id === 'image' ? (
-                                        <img 
-                                            src={row[column.id]} 
-                                            alt="row image" 
-                                            className='w-[60px] h-[60px] object-cover rounded-md'/>
+                                        <div className="w-[60px] h-[60px] rounded-full border-gray-200 border-[1px] overflow-hidden">
+                                            <img 
+                                                src={row[column.id] || NoImage} 
+                                                alt="row image" 
+                                                className='w-full h-full object-cover'/>
+                                        </div>
+                                    ) : column.id === 'action' ? (
+                                        <div className="flex justify-start">
+                                            <Button 
+                                                color="primary" 
+                                                size="small"
+                                                onClick={() => onEdit(row.id)}
+                                                sx={{ mr: 1 }}>
+                                                <FilePenLine />
+                                            </Button>
+                                            <Button 
+                                                color="error" 
+                                                size="small"
+                                                onClick={() => onDelete(row.id)}>
+                                                <Trash2 />
+                                            </Button>
+                                        </div>
                                     ) : (
-                                        row[column.id]
+                                        row[column.id] || '---'
                                     )}
                                 </TableCell>
                             ))}
