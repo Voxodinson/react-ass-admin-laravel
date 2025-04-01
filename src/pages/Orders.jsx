@@ -1,20 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import TableComponent from '../components/Table';
 import SeleMenu from '../components/SelectMenu';
-import { Plus, CircleX, PackagePlus, Trash2 } from 'lucide-react';
+import { CircleX} from 'lucide-react';
 import apiHandle from '../services/apiHandle';
-import { Message } from '../context/AlertProvider';
 import Backdrop from '@mui/material/Backdrop';
 import Box from '@mui/material/Box';
-import { Button, TextareaAutosize } from '@mui/material';
 import Modal from '@mui/material/Modal';
 import Fade from '@mui/material/Fade';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
-import ChooseMultiplePhoto from '../components/ChooseMultiplePhoto';
 
 const columns = [
-    { id: 'transaction_id', label: 'ID', align: 'left' },
     { id: 'user_name', label: 'Name', align: 'left' },
     { id: 'user_email', label: 'Email', align: 'left' },
     { id: 'total_amount', label: 'Total', align: 'left' },
@@ -23,11 +19,9 @@ const columns = [
     { id: 'shipping_address', label: 'Shipping Address', align: 'left' }
 ];
 
-export default function ProductList() {
+export default function Orders() {
     const [selectType, setSelectedType] = useState('men');
     const [openModal, setOpenModal] = useState(false);
-    const [sizes, setSizes] = useState([""]);
-    const [images, setImages] = useState([]);
     const [data, setData] = useState([]);
   
 
@@ -37,7 +31,6 @@ export default function ProductList() {
         { value: 'kids', label: 'Kids' }
     ];
 
-    const handleOpenModal = () => setOpenModal(true);
     const handleCloseModal = () => setOpenModal(false);
 
 
@@ -58,6 +51,47 @@ export default function ProductList() {
     }, []);
 
    
+
+    const expandableContent = (row) => (
+        <div>
+            <div 
+                className="w-full flex flex-col gap-2">
+                <p>
+                    <strong>Address:</strong> 
+                    &ensp; {row.shipping_address}, {row.shipping_city}, {row.shipping_zip}, {row.shipping_country}
+                </p>
+                <p>
+                    <strong>Order At: </strong>{row.created_at}
+                </p>
+                <p>
+                    <strong>Update At: </strong> {row.updated_at}
+                </p>
+            </div>
+            <div className="w-full flex gap-3 py-3">
+                {row.order_items.map((item) => (
+                    <div 
+                        className="w-[200px] flex items-start justify-start flex-col gap-2 p-3 rounded-md h-fit bg-blue-200">
+                        <h3 className=' capitalize'>
+                            <strong>Name:</strong>
+                            &ensp;
+                            {item.product_name}
+                        </h3>
+                        <p>
+                            <strong>Qty:</strong>
+                            &ensp;{item.quantity}
+                        </p>
+                        <p>
+                            <strong>Color:</strong>
+                            &enps;{item.color}</p>
+                        <p>
+                            <strong>Size:</strong>
+                            &ensp;{item.size}
+                        </p>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
 
     return (
         <div className="w-full h-[81.5vh]">
@@ -86,6 +120,7 @@ export default function ProductList() {
                     per_page={10}
                     onEdit={()=> {}}
                     onDelete={()=> {}}
+                    expandable={expandableContent}
                 />
             </div>
             <Modal

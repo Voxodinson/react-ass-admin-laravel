@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import TableComponent from '../components/Table';
 import SeleMenu from '../components/SelectMenu';
-import { Plus, CircleX, PackagePlus, Trash2 } from 'lucide-react';
+import { 
+    Plus, 
+    CircleX, 
+    PackagePlus, 
+    Trash2 
+} from 'lucide-react';
 import apiHandle from '../services/apiHandle';
 import { Message } from '../context/AlertProvider';
 import Backdrop from '@mui/material/Backdrop';
@@ -26,7 +31,7 @@ const columns = [
 ];
 
 export default function ProductList() {
-    const [selectType, setSelectedType] = useState('men');
+    const [selectType, setSelectedType] = useState('');
     const [openModal, setOpenModal] = useState(false);
     const [sizes, setSizes] = useState([""]);
     const [images, setImages] = useState([]);
@@ -98,11 +103,9 @@ export default function ProductList() {
         fetchData();
     }, []);
 
-    // Create or Update Product
     const handleSubmit = async (e) => {
         e.preventDefault();
     
-        // Prepare the form data to send
         const formDataToSend = new FormData();
         formDataToSend.append('name', formData.name);
         formDataToSend.append('description', formData.description);
@@ -125,20 +128,17 @@ export default function ProductList() {
         try {
             let response;
             if (formData.id) {
-                // Update existing product
                 response = await apiHandle.put(`products/${formData.id}`, formDataToSend, {
                     headers: { 'Content-Type': 'multipart/form-data' }
                 });
                 Message('Product updated successfully!', 'success');
             } else {
-                // Create new product
                 response = await apiHandle.post('products', formDataToSend, {
                     headers: { 'Content-Type': 'multipart/form-data' }
                 });
                 Message('Product created successfully!', 'success');
             }
     
-            // Fetch the updated product list and close the modal
             fetchData();
             handleCloseModal();
         } catch (error) {
@@ -166,9 +166,10 @@ export default function ProductList() {
                 category: product.category,
                 rating: product.rating,
                 product_type: product.product_type,
-            });  // Open the modal for editing
+            });
             setSizes(product.sizes || []);
-            setImages(product.image_urls || [])
+            setImages(product.image_urls || []);
+            setSelectedType(product.product_type);
         } catch (error) {
             console.error('Error fetching product for edit:', error);
         }
@@ -185,7 +186,6 @@ export default function ProductList() {
             Message('Error deleting product.', 'error');
         }
     };
-
     return (
         <div className="w-full h-[81.5vh]">
             <div className="w-full p-2 bg-white rounded-md flex items-center justify-between gap-2 mt-3 border-gray-200 border-[1px]">
@@ -201,8 +201,7 @@ export default function ProductList() {
                             label="Product Type"
                             data={productType}
                             value={selectType}
-                            onChange={setSelectedType}
-                        />
+                            onChange={setSelectedType}/>
                     </div>
                 </div>
                 <Button onClick={handleOpenModal} variant="contained" size="small">
@@ -215,8 +214,7 @@ export default function ProductList() {
                     data={data}
                     per_page={10}
                     onEdit={handleEdit}
-                    onDelete={handleDelete}
-                />
+                    onDelete={handleDelete}/>
             </div>
             <Modal
                 aria-labelledby="transition-modal-title"
@@ -226,8 +224,7 @@ export default function ProductList() {
                 closeAfterTransition
                 slots={{ backdrop: Backdrop }}
                 slotProps={{ backdrop: { timeout: 500 } }}
-                className="w-full flex items-center justify-center"
-            >
+                className="w-full flex items-center justify-center">
                 <Fade in={openModal}>
                     <Box className="w-[1000px] bg-white z-50 overflow-hidden rounded-md shadow-md border-gray-200 border-[1px]">
                         <div className="w-full px-4 py-1 bg-[#6592a3] text-white flex justify-between items-center">
@@ -300,14 +297,12 @@ export default function ProductList() {
                                         onChange={handleInputChange}
                                         className="w-[calc(98.5%/2)]"
                                     />
-                                    <TextField
+                                    <SeleMenu
                                         label="Product Type"
-                                        size="small"
-                                        name="product_type"
-                                        value={formData.product_type || ""}
-                                        onChange={handleInputChange}
-                                        className="w-[calc(98.5%/2)]"
-                                    />
+                                        data={productType}
+                                        value={selectType}
+                                        onChange={setSelectedType}
+                                        className="w-[calc(98.5%/2)]"/>
                                     <div className="w-full border-b-[1px] border-gray-200">
                                         <p>Sizes</p>
                                     </div>
@@ -337,10 +332,17 @@ export default function ProductList() {
                                     />
                                 </div>
                                 <div className="w-full flex justify-end gap-3 px-3 border-t-[1px] pt-3 border-gray-200">
-                                    <Button onClick={handleCloseModal} variant="contained" size="small" color="error">
+                                    <Button 
+                                        onClick={handleCloseModal} 
+                                        variant="contained" 
+                                        size="small" 
+                                        color="error">
                                         <CircleX />&ensp; Cancel
                                     </Button>
-                                    <Button type="submit" variant="contained" size="small">
+                                    <Button 
+                                        type="submit" 
+                                        variant="contained" 
+                                        size="small">
                                         <PackagePlus />&ensp; {formData.id ? 'Update' : 'Create'}
                                     </Button>
                                 </div>
