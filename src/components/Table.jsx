@@ -51,8 +51,8 @@ const TableComponent = ({ columns, data, per_page, onEdit, onDelete, expandable 
                                     </TableCell>
                                 )}
                                 {columns.map((column) => (
-                                    <TableCell key={column.id} align={column.align} sx={{ minWidth: column.minWidth || 100 }}>
-                                        {column.id === 'image' ? (
+                                    <TableCell className=' capitalize' key={column.id} align={column.align} sx={{ minWidth: column.minWidth || 100 }}>
+                                        {column.id === 'image' || column.id === 'profile' ? (
                                             <div className="w-[60px] h-[60px] rounded-full border-gray-200 border-[1px] overflow-hidden">
                                                 <img src={row[column.id] || NoImage} alt="row image" className='w-full h-full object-cover'/>
                                             </div>
@@ -75,7 +75,7 @@ const TableComponent = ({ columns, data, per_page, onEdit, onDelete, expandable 
                                 <TableRow>
                                     <TableCell colSpan={columns.length + 1} style={{ padding: 0 }}>
                                         <Collapse in={expandedRows[row.id]} timeout="auto" unmountOnExit>
-                                            <div className="p-4 bg-gray-100">{expandable(row)}</div>
+                                            <div className="p-4 bg-white">{expandable(row)}</div>
                                         </Collapse>
                                     </TableCell>
                                 </TableRow>

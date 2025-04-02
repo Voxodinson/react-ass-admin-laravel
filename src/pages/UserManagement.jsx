@@ -19,8 +19,9 @@ import {
     Fade, 
     Backdrop 
 } from '@mui/material';
-
+import ChoosePhoto from '../components/ChooseMultiplePhoto';
 const columns = [
+    { id: 'profile', label: 'Profile', align: 'left' },
     { id: 'name', label: 'Name', align: 'left' },
     { id: 'email', label: 'Email', align: 'left' },
     { id: 'role', label: 'Role', align: 'left' },
@@ -32,6 +33,7 @@ const columns = [
 export default function UserList() {
     const [openModal, setOpenModal] = useState(false);
     const [data, setData] = useState([]);
+    const [profile, setProfile] = useState("");
     const [formData, setFormData] = useState({
         id: "",
         name: "",
@@ -40,14 +42,32 @@ export default function UserList() {
         address: "",
         dob: "",
         password: "",
+        profile: ""
     });
 
     const handleOpenModal = () => setOpenModal(true);
     const handleCloseModal = () => {
         setOpenModal(false);
-        setFormData({ id: "", name: "", email: "", role: "", address: "", dob: "" });
+        setFormData({ id: "", name: "", email: "", role: "", address: "", dob: "", profile: "" });
     };
 
+    const handleFileChange = (files) => {
+        if (files.length > 0) {
+            const selectedFile = files[0];
+    
+            if (!selectedFile.type.startsWith("image/")) {
+                Message("Please select a valid image file.", "error");
+                return;
+            }
+    
+            setProfile(selectedFile);
+            setFormData((prevData) => ({
+                ...prevData,
+                profile: selectedFile,
+            }));
+        }
+    };
+    
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData((prevData) => ({
@@ -69,34 +89,71 @@ export default function UserList() {
         fetchData();
     }, []);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            let response;
-            if (formData.id) {
-                response = await apiHandle.put(`update/${formData.id}`, formData);
-                Message('User updated successfully!', 'success');
-            } else {
-                response = await apiHandle.post('register', formData);
-                Message('User created successfully!', 'success');
-            }
-            fetchData();
-            handleCloseModal();
-        } catch (error) {
-            console.error('Error processing user:', error.response?.data);
-            Message('Error processing user.', 'error');
-        }
-    };
-
     const handleEdit = async (id) => {
         setOpenModal(true);
         try {
             const response = await apiHandle.get(`users/${id}`);
-            setFormData(response);
+            const userData = response;
+
+            setFormData({
+                id: userData.id || null,
+                name: userData.name || "",
+                email: userData.email || "",
+                role: userData.role || "",
+                address: userData.address || "",
+                dob: userData.dob || "",
+                password: "",
+                profile: "",
+            });
+
+            setProfile(userData.profile_url || ""); 
         } catch (error) {
             console.error('Error fetching user for edit:', error);
+            Message('Error fetching user details for editing.', 'error');
         }
     };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+    
+        try {
+            const formDataToSend = new FormData();
+            formDataToSend.append("name", formData.name);
+            formDataToSend.append("email", formData.email);
+            formDataToSend.append("role", formData.role);
+            formDataToSend.append("address", formData.address);
+            formDataToSend.append("dob", formData.dob);
+            formDataToSend.append("password", formData.password || "");
+    
+            // Append only one image file
+            if (profile instanceof File) {
+                formDataToSend.append("profile", profile);
+            }
+    
+                console.log(formData)
+            let response;
+            if (formData.id) {
+                response = await apiHandle.put(`update/${formData.id}`, formData, {
+                    headers: { "Content-Type": "multipart/form-data" },
+                });
+                Message("User updated successfully!", "success");
+            } else {
+                response = await apiHandle.post("register", formDataToSend, {
+                    headers: { "Content-Type": "multipart/form-data" },
+                });
+                Message("User created successfully!", "success");
+            }
+    
+            fetchData();
+            handleCloseModal();
+        } catch (error) {
+            console.error("Error processing user:", error.response?.data);
+            Message("Error processing user.", "error");
+        }
+    };
+    
+
+    
 
     const handleDelete = async (id) => {
         try {
@@ -125,7 +182,7 @@ export default function UserList() {
                 <TableComponent
                     columns={columns}
                     data={data}
-                    per_page={10}
+                    per_page={20}
                     onEdit={handleEdit}
                     onDelete={handleDelete}/>
             </div>
@@ -143,7 +200,14 @@ export default function UserList() {
                             variant="h6">
                             {formData.id ? "Edit User" : "Create User"}
                         </Typography>
-                        <form onSubmit={handleSubmit} className="flex flex-col gap-3 mt-3">
+                        <form 
+                            onSubmit={handleSubmit} 
+                            className="flex flex-col gap-3 mt-3">
+                            <div className="">
+                                <ChoosePhoto
+                                    onFileChange={handleFileChange}
+                                    name={profile}/>
+                            </div>
                             <TextField 
                                 label="Name" 
                                 name="name" 
@@ -174,15 +238,18 @@ export default function UserList() {
                                 value={formData.dob} 
                                 onChange={handleInputChange} 
                                 size="small" />
-                            <TextField
-                                label="Password"
-                                size="small"
-                                name="password"
-                                type="password"
-                                value={formData.password || ""}
-                                onChange={handleInputChange}
-                                className="w-full"
-                                autoComplete="new-password"/>
+                            {formData.id === "" && (
+                                <TextField
+                                    label="Password"
+                                    size="small"
+                                    name="password"
+                                    type="password"
+                                    value={formData.password || ""}
+                                    onChange={handleInputChange}
+                                    className="w-full"
+                                    autoComplete="new-password"
+                                />
+                            )}
                             <div 
                                 className="flex justify-end gap-3 mt-3">
                                 <Button 
