@@ -48,7 +48,7 @@ export default function UserList() {
     const handleOpenModal = () => setOpenModal(true);
     const handleCloseModal = () => {
         setOpenModal(false);
-        setFormData({ id: "", name: "", email: "", role: "", address: "", dob: "", profile: "" });
+        setFormData({ id: "", name: "", email: "", role: "", address: "", dob: "", profile: null });
     };
 
     const handleFileChange = (files) => {
@@ -103,7 +103,7 @@ export default function UserList() {
                 address: userData.address || "",
                 dob: userData.dob || "",
                 password: "",
-                profile: "",
+                profile: null,
             });
 
             setProfile(userData.profile_url || ""); 
@@ -130,7 +130,6 @@ export default function UserList() {
                 formDataToSend.append("profile", profile);
             }
     
-                console.log(formData)
             let response;
             if (formData.id) {
                 response = await apiHandle.put(`update/${formData.id}`, formData, {

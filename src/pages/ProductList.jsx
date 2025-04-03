@@ -187,9 +187,12 @@ export default function ProductList() {
         }
     };
     return (
-        <div className="w-full h-[81.5vh]">
-            <div className="w-full p-2 bg-white rounded-md flex items-center justify-between gap-2 mt-3 border-gray-200 border-[1px]">
-                <div className="w-fit flex gap-3">
+        <div 
+            className="w-full h-[81.5vh]">
+            <div 
+                className="w-full p-2 bg-white rounded-md flex items-center justify-between gap-2 mt-3 border-gray-200 border-[1px]">
+                <div 
+                    className="w-fit flex gap-3">
                     <TextField
                         label="Search Product"
                         id="outlined-size-small"
@@ -204,7 +207,10 @@ export default function ProductList() {
                             onChange={setSelectedType}/>
                     </div>
                 </div>
-                <Button onClick={handleOpenModal} variant="contained" size="small">
+                <Button 
+                    onClick={handleOpenModal} 
+                    variant="contained" 
+                    size="small">
                     <Plus />
                 </Button>
             </div>
@@ -226,16 +232,26 @@ export default function ProductList() {
                 slotProps={{ backdrop: { timeout: 500 } }}
                 className="w-full flex items-center justify-center">
                 <Fade in={openModal}>
-                    <Box className="w-[1000px] bg-white z-50 overflow-hidden rounded-md shadow-md border-gray-200 border-[1px]">
-                        <div className="w-full px-4 py-1 bg-[#6592a3] text-white flex justify-between items-center">
-                            <Typography id="transition-modal-title" variant="h6">
+                    <Box 
+                        className="w-[1000px] bg-white z-50 overflow-hidden rounded-md shadow-md border-gray-200 border-[1px]">
+                        <div 
+                            className="w-full px-4 py-1 bg-[#6592a3] text-white flex justify-between items-center">
+                            <Typography 
+                                id="transition-modal-title" 
+                                variant="h6">
                                 {formData.id ? "Edit Product" : "Create Product"}
                             </Typography>
-                            <CircleX className="cursor-pointer" onClick={handleCloseModal} />
+                            <CircleX 
+                                className="cursor-pointer" 
+                                onClick={handleCloseModal} />
                         </div>
-                        <div className="w-full h-fit pt-6 pb-3 px-3 max-h-[80vh] overflow-auto">
-                            <form onSubmit={handleSubmit} className="w-full flex flex-wrap gap-3">
-                                <div className="w-[200px]">
+                        <div 
+                            className="w-full h-fit pt-6 pb-3 px-3 max-h-[80vh] overflow-auto">
+                            <form 
+                                onSubmit={handleSubmit} 
+                                className="w-full flex flex-wrap gap-3">
+                                <div 
+                                    className="w-[200px]">
                                     <ChooseMultiplePhoto 
                                         onFileChange={handleFileChange} 
                                         name="photos" />
