@@ -19,7 +19,7 @@ import {
     Fade, 
     Backdrop 
 } from '@mui/material';
-import ChoosePhoto from '../components/ChooseMultiplePhoto';
+import ChoosePhoto from '../components/ChoosePhoto';
 const columns = [
     { id: 'profile', label: 'Profile', align: 'left' },
     { id: 'name', label: 'Name', align: 'left' },
@@ -202,7 +202,7 @@ export default function UserList() {
                         <form 
                             onSubmit={handleSubmit} 
                             className="flex flex-col gap-3 mt-3">
-                            <div className="">
+                            <div className="w-[200px] flex">
                                 <ChoosePhoto
                                     onFileChange={handleFileChange}
                                     name={profile}/>
