@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
-import { CircleX, Image } from 'lucide-react';
+import { 
+    CircleX, 
+    Image 
+} from 'lucide-react';
 
 export default function ChoosePhoto({ onFileChange, name, onSubmit }) {
-  const [filePreview, setFilePreview] = useState(null);
-  const [selectedFile, setSelectedFile] = useState(null);
+    const [filePreview, setFilePreview] = useState(null);
+    const [selectedFile, setSelectedFile] = useState(null);
 
     const handleFileChange = (event) => {
         const file = event.target.files[0];
@@ -51,7 +54,6 @@ export default function ChoosePhoto({ onFileChange, name, onSubmit }) {
                     />
                 </div>
             )}
-
         </div>
     );
 }
