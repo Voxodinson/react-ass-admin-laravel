@@ -29,7 +29,7 @@ export default function ChoosePhoto({ onFileChange, name, onSubmit }) {
     };
 
     return (
-        <div className="flex flex-col w-full items-start space-y-4">
+        <div className="flex flex-col w-full h-full items-start space-y-4">
             <label className="flex items-center bg-blue-500 w-full text-white py-2 px-4 rounded cursor-pointer hover:bg-blue-600">
                 <p className='text-center flex items-center gap-3 w-full'>
                     <Image />Choose Photo
