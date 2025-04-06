@@ -15,7 +15,11 @@ import {
     Paper,
     CircularProgress,
 } from '@mui/material';
-import { Trash2 } from 'lucide-react';
+import {
+    CircleX,
+    PackagePlus,
+    Trash2
+} from 'lucide-react';
 import apiHandle from '../services/apiHandle'; // Assuming you have your API service
 
 const style = {
@@ -38,11 +42,12 @@ const CompanyProfileFormModal = ({ open, onClose, onSubmit, initialValues, isEdi
         address: '',
         website: '',
         description: '',
-        photo: null, // Changed initial photo to null for file input
+        photo: null, // Holds the selected file
         store_locations: '',
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [photoPreview, setPhotoPreview] = useState(null);
 
     useEffect(() => {
         if (initialValues) {
@@ -53,9 +58,10 @@ const CompanyProfileFormModal = ({ open, onClose, onSubmit, initialValues, isEdi
                 address: initialValues.address || '',
                 website: initialValues.website || '',
                 description: initialValues.description || '',
-                photo: null, // Reset photo on edit, user needs to re-select if they want to change
+                photo: null, // Reset file input on edit
                 store_locations: initialValues.store_locations || '',
             });
+            setPhotoPreview(initialValues.photo_url || null);
         } else {
             setFormData({
                 name: '',
@@ -67,6 +73,7 @@ const CompanyProfileFormModal = ({ open, onClose, onSubmit, initialValues, isEdi
                 photo: null,
                 store_locations: '',
             });
+            setPhotoPreview(null);
         }
         setError(null);
     }, [initialValues, open]);
@@ -105,10 +112,21 @@ const CompanyProfileFormModal = ({ open, onClose, onSubmit, initialValues, isEdi
     };
 
     const handlePhotoChange = (event) => {
+        const file = event.target.files[0];
         setFormData(prevData => ({
             ...prevData,
-            photo: event.target.files[0],
+            photo: file,
         }));
+
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setPhotoPreview(reader.result);
+            };
+            reader.readAsDataURL(file);
+        } else {
+            setPhotoPreview(initialValues?.photo_url || null);
+        }
     };
 
     const handleSubmit = async (event) => {
@@ -122,15 +140,17 @@ const CompanyProfileFormModal = ({ open, onClose, onSubmit, initialValues, isEdi
             formDataToSend.append('address', formData.address);
             formDataToSend.append('website', formData.website);
             formDataToSend.append('description', formData.description);
-            if (formData.photo) {
-                formDataToSend.append('photo', formData.photo);
-            }
             formDataToSend.append('store_locations', formData.store_locations); // Send as string
             formData.phone.forEach(phone => formDataToSend.append('phone[]', phone));
 
+            if (formData.photo) {
+                formDataToSend.append('photo', formData.photo);
+            }
+
             let response;
             if (isEdit && initialValues?.id) {
-                response = await apiHandle.put(`companies/${initialValues.id}`, formDataToSend, {
+                formDataToSend.append('_method', 'PUT');
+                response = await apiHandle.post(`companies/${initialValues.id}`, formDataToSend, {
                     headers: { 'Content-Type': 'multipart/form-data' },
                 });
                 onSubmit(response.data);
@@ -140,6 +160,7 @@ const CompanyProfileFormModal = ({ open, onClose, onSubmit, initialValues, isEdi
                 });
                 onSubmit(response.data);
             }
+
             onClose();
         } catch (err) {
             console.error('Error creating/updating company profile:', err);
@@ -162,14 +183,23 @@ const CompanyProfileFormModal = ({ open, onClose, onSubmit, initialValues, isEdi
             }}
             className='flex items-center justify-center'>
             <Fade in={open}>
-                <Box sx={style} className="rounded-md shadow-md p-5">
-                    <Typography variant="h6" gutterBottom>
+                <Box sx={style} className="rounded-md shadow-md p-3">
+                    <Typography
+                        variant="h6"
+                        gutterBottom>
                         {isEdit ? 'Edit Company Profile' : 'Create Company Profile'}
                     </Typography>
                     <Box
                         component="form"
                         onSubmit={handleSubmit}
                         className='flex flex-wrap w-full gap-3'>
+                        <Box sx={{ width: 100, height: 100, borderRadius: '8px', overflow: 'hidden', mb: 2 }}>
+                            <img
+                                src={photoPreview}
+                                alt="Preview"
+                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            />
+                        </Box>
                         <FormControl fullWidth>
                             <OutlinedInput
                                 id="photo"
@@ -257,19 +287,36 @@ const CompanyProfileFormModal = ({ open, onClose, onSubmit, initialValues, isEdi
                             onChange={handleChange}
                             className="w-full"
                         />
+                        <TextField
+                            label="Store Locations"
+                            name="store_locations"
+                            multiline
+                            rows={2}
+                            value={formData.store_locations}
+                            onChange={handleChange}
+                            className="w-full"
+                        />
                         {error && (
                             <Typography color="error" sx={{ mt: 1 }}>
                                 {error}
                             </Typography>
                         )}
-                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
-                            <Button onClick={onClose} sx={{ mr: 2 }} disabled={loading}>
-                                Cancel
+
+                        <div className="w-full flex justify-end gap-3 border-t-[1px] pt-3 border-gray-200">
+                            <Button
+                                onClick={onClose}
+                                variant="contained"
+                                size="small"
+                                color="error">
+                                <CircleX />&ensp; Cancel
                             </Button>
-                            <Button type="submit" variant="contained" color="primary" disabled={loading}>
-                                {loading ? <CircularProgress size={24} /> : (isEdit ? 'Update Profile' : 'Create Profile')}
+                            <Button
+                                type="submit"
+                                variant="contained"
+                                size="small">
+                                <PackagePlus />&ensp; {isEdit ? 'Update' : 'Create'}
                             </Button>
-                        </Box>
+                        </div>
                     </Box>
                 </Box>
             </Fade>
@@ -284,34 +331,32 @@ const CompanyProfileDisplay = ({ data }) => {
     }
 
     const phoneNumbers = Array.isArray(data.phone) ? data.phone.join(', ') : data.phone || 'N/A';
-    const storeLocations = data.store_locations || 'N/A';
+
     return (
-        <div 
-            className="w-full flex gap-3 bg-white p-3 rounded-md">
-            <div 
+        <div
+            className="w-full flex flex-col items-center justify-center gap-3 bg-white p-3 rounded-md">
+            <div
                 className="w-[200px] h-[200px] rounded-md overflow-hidden border-gray-200 border-[1px] bg-white">
-                <img 
-                    src={data.photo_url} 
-                    alt="photo"
+                <img
+                    src={data.photo_url}
+                    alt="Company Logo"
                     className='w-full h-full object-cover' />
             </div>
-            <div 
+            <div
                 className=" w-[calc(100%-200px)]">
-                <div className="flex gap-3 border-b-[1px] border-gray-200">
-                    <h3 className='text-[1.5rem] text-blue-500 font-semibold'>
-                        {data.name}
-                    </h3>
-                </div>
+                <h3 className='text-[1.5rem] w-full text-center font-semibold'>
+                    {data.name}
+                </h3>
 
-                <div className="flex gap-3 mt-3">
+                <div className="flex justify-between border-b-[1px] border-gray-200 py-1 gap-3 mt-6">
                     <strong>
-                        Phone:
+                        Email:
                     </strong>
                     <p>
                         {data.email}
                     </p>
                 </div>
-                <div className="flex gap-3">
+                <div className="flex gap-3 justify-between border-b-[1px] border-gray-200 py-1 ">
                     <strong>
                         Phone:
                     </strong>
@@ -319,7 +364,7 @@ const CompanyProfileDisplay = ({ data }) => {
                         {phoneNumbers}
                     </p>
                 </div>
-                <div className="flex gap-3">
+                <div className="flex gap-3 justify-between border-b-[1px] border-gray-200 py-1 ">
                     <strong>
                         Website Url:
                     </strong>
@@ -330,7 +375,7 @@ const CompanyProfileDisplay = ({ data }) => {
                         {data.website}
                     </a>
                 </div>
-                <div className="flex gap-3">
+                <div className="flex gap-3 justify-between border-b-[1px] border-gray-200 py-1 ">
                     <strong>
                         Address:
                     </strong>
@@ -338,7 +383,7 @@ const CompanyProfileDisplay = ({ data }) => {
                         {data.address}
                     </p>
                 </div>
-                <div className="flex gap-3">
+                <div className="flex gap-3 justify-between border-b-[1px] border-gray-200 py-1 ">
                     <strong>
                         Description:
                     </strong>
@@ -346,6 +391,16 @@ const CompanyProfileDisplay = ({ data }) => {
                         {data.description}
                     </p>
                 </div>
+                {data.store_locations && (
+                    <div className="flex gap-3 justify-between border-b-[1px] border-gray-200 py-1 ">
+                        <strong>
+                            Store Locations:
+                        </strong>
+                        <p>
+                            {data.store_locations}
+                        </p>
+                    </div>
+                )}
             </div>
         </div>
     );
@@ -362,9 +417,8 @@ const CompanyProfilePage = () => {
         setLoading(true);
         setError(null);
         try {
-            const result = await apiHandle.get('companies/10'); // Assuming a single company profile with ID 1
+            const result = await apiHandle.get('companies/10');
             setCompanyData(result);
-            console.log(result)
         } catch (error) {
             console.error("Error fetching company:", error);
             setError("Failed to load company profile.");
@@ -399,17 +453,25 @@ const CompanyProfilePage = () => {
 
     return (
         <div className='w-full flex flex-col'>
-            <div 
+            <div
                 className="w-full p-2 mb-3 bg-white rounded-md flex items-center justify-end gap-2 mt-3 border-gray-200 border-[1px]">
-                <Button 
-                    variant="contained" 
-                    color="primary" 
+                <Button
+                    variant="contained"
+                    color="primary"
                     onClick={handleOpenEditModal}>
                     Edit Company Profile
                 </Button>
             </div>
-            <CompanyProfileDisplay 
-                data={companyData} />
+            {loading ? (
+                <Box display="flex" justifyContent="center" alignItems="center" minHeight={200}>
+                    <CircularProgress />
+                </Box>
+            ) : error ? (
+                <Typography color="error">{error}</Typography>
+            ) : (
+                <CompanyProfileDisplay
+                    data={companyData} />
+            )}
             <CompanyProfileFormModal
                 open={isModalOpen}
                 onClose={handleCloseModal}
