@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import TableComponent from '../components/Table';
 import SeleMenu from '../components/SelectMenu';
-import { 
-    Plus, 
-    CircleX, 
-    PackagePlus, 
-    Trash2 
+import {
+    Plus,
+    CircleX,
+    PackagePlus,
+    Trash2
 } from 'lucide-react';
 import apiHandle from '../services/apiHandle';
 import { Message } from '../context/AlertProvider';
@@ -16,7 +16,7 @@ import Modal from '@mui/material/Modal';
 import Fade from '@mui/material/Fade';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
-import ChooseMultiplePhoto from '../components/ChooseMultiplePhoto';
+import IconButton from '@mui/material/IconButton';
 
 const columns = [
     { id: 'image', label: 'Image', align: 'left' },
@@ -30,11 +30,25 @@ const columns = [
     { id: 'action', label: 'Action', align: 'left' }
 ];
 
+const style = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 1000,
+    bgcolor: 'background.paper',
+    border: '1px solid #000',
+    boxShadow: 24,
+    borderRadius: '8px',
+};
+
 export default function ProductList() {
     const [selectType, setSelectedType] = useState('');
     const [openModal, setOpenModal] = useState(false);
     const [sizes, setSizes] = useState([""]);
-    const [images, setImages] = useState([]);
+    const [newImages, setNewImages] = useState([]); // For newly selected images
+    const [existingImages, setExistingImages] = useState([]); // Array of existing image URLs
+    const [previewNewImages, setPreviewNewImages] = useState([]);
     const [data, setData] = useState([]);
     const [formData, setFormData] = useState({
         id: "",
@@ -47,6 +61,7 @@ export default function ProductList() {
         stock: "",
         description: "",
     });
+    const newImageInputRef = useRef(null);
 
     const productType = [
         { value: 'men', label: 'Men' },
@@ -56,10 +71,16 @@ export default function ProductList() {
 
     const handleOpenModal = () => setOpenModal(true);
     const handleCloseModal = () => {
-        setOpenModal(false); 
+        setOpenModal(false);
         setFormData({});
         setSizes([]);
-        setImages([]);
+        setNewImages([]);
+        setExistingImages([]);
+        setPreviewNewImages([]);
+        setSelectedType('');
+        if (newImageInputRef.current) {
+            newImageInputRef.current.value = ""; // Reset file input
+        }
     };
 
     const handleInputChange = (e) => {
@@ -85,8 +106,25 @@ export default function ProductList() {
         setSizes(newSizes);
     };
 
-    const handleFileChange = (files) => {
-        setImages(files);
+    const handleNewImageChange = (e) => {
+        const files = Array.from(e.target.files);
+        setNewImages(files);
+        const previews = [];
+        for (let i = 0; i < files.length; i++) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                previews.push(reader.result);
+                if (previews.length === files.length) {
+                    setPreviewNewImages(previews);
+                }
+            };
+            reader.readAsDataURL(files[i]);
+        }
+    };
+
+    const handleRemoveExistingImage = (index) => {
+        const updatedImages = existingImages.filter((_, i) => i !== index);
+        setExistingImages(updatedImages);
     };
 
     // Fetch data
@@ -98,14 +136,14 @@ export default function ProductList() {
             console.error("Error fetching products:", error);
         }
     };
-    
+
     useEffect(() => {
         fetchData();
     }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-    
+
         const formDataToSend = new FormData();
         formDataToSend.append('name', formData.name);
         formDataToSend.append('description', formData.description);
@@ -116,19 +154,25 @@ export default function ProductList() {
         formDataToSend.append('category', formData.category);
         formDataToSend.append('rating', formData.rating);
         formDataToSend.append('product_type', selectType);
-    
+
         sizes.forEach(size => {
             formDataToSend.append('sizes[]', size);
         });
-    
-        images.forEach((image) => {
-            formDataToSend.append('images[]', image);
+
+        // Send the URLs of the images we want to KEEP
+        existingImages.forEach(imageUrl => {
+            formDataToSend.append('old_images[]', imageUrl);
         });
-    
+
+        for (let i = 0; i < newImages.length; i++) {
+            formDataToSend.append('images[]', newImages[i]); // Key for new images
+        }
+
         try {
             let response;
             if (formData.id) {
-                response = await apiHandle.put(`products/${formData.id}`, formDataToSend, {
+                formDataToSend.append('_method', 'PUT');
+                response = await apiHandle.post(`products/${formData.id}`, formDataToSend, {
                     headers: { 'Content-Type': 'multipart/form-data' }
                 });
                 Message('Product updated successfully!', 'success');
@@ -138,7 +182,7 @@ export default function ProductList() {
                 });
                 Message('Product created successfully!', 'success');
             }
-    
+
             fetchData();
             handleCloseModal();
         } catch (error) {
@@ -149,12 +193,11 @@ export default function ProductList() {
 
     // Edit Product
     const handleEdit = async (id) => {
-
         setOpenModal(true);
         try {
             const response = await apiHandle.get(`products/${id}`);
             const product = response;
-    
+
             setFormData({
                 id: product.id,
                 name: product.name,
@@ -165,11 +208,15 @@ export default function ProductList() {
                 brand: product.brand,
                 category: product.category,
                 rating: product.rating,
-                product_type: product.product_type,
             });
-            setSizes(product.sizes || []);
-            setImages(product.image_urls || []);
             setSelectedType(product.product_type);
+            setSizes(product.sizes || []);
+            setExistingImages(product.image_urls || []); // Populate existingImages with URLs
+            setNewImages([]);
+            setPreviewNewImages([]);
+            if (newImageInputRef.current) {
+                newImageInputRef.current.value = ""; // Reset file input
+            }
         } catch (error) {
             console.error('Error fetching product for edit:', error);
         }
@@ -186,12 +233,13 @@ export default function ProductList() {
             Message('Error deleting product.', 'error');
         }
     };
+
     return (
-        <div 
+        <div
             className="w-full h-[81.5vh]">
-            <div 
+            <div
                 className="w-full p-2 bg-white rounded-md flex items-center justify-between gap-2 mt-3 border-gray-200 border-[1px]">
-                <div 
+                <div
                     className="w-fit flex gap-3">
                     <TextField
                         label="Search Product"
@@ -207,9 +255,9 @@ export default function ProductList() {
                             onChange={setSelectedType}/>
                     </div>
                 </div>
-                <Button 
-                    onClick={handleOpenModal} 
-                    variant="contained" 
+                <Button
+                    onClick={handleOpenModal}
+                    variant="contained"
                     size="small">
                     <Plus />
                 </Button>
@@ -232,31 +280,77 @@ export default function ProductList() {
                 slotProps={{ backdrop: { timeout: 500 } }}
                 className="w-full flex items-center justify-center">
                 <Fade in={openModal}>
-                    <Box 
-                        className="w-[1000px] bg-white z-50 overflow-hidden rounded-md shadow-md border-gray-200 border-[1px]">
-                        <div 
+                    <Box sx={style} className="bg-white z-50 overflow-hidden rounded-md shadow-md border-gray-200 border-[1px]">
+                        <div
                             className="w-full px-4 py-1 bg-[#6592a3] text-white flex justify-between items-center">
-                            <Typography 
-                                id="transition-modal-title" 
+                            <Typography
+                                id="transition-modal-title"
                                 variant="h6">
                                 {formData.id ? "Edit Product" : "Create Product"}
                             </Typography>
-                            <CircleX 
-                                className="cursor-pointer" 
+                            <CircleX
+                                className="cursor-pointer"
                                 onClick={handleCloseModal} />
                         </div>
-                        <div 
+                        <div
                             className="w-full h-fit pt-6 pb-3 px-3 max-h-[80vh] overflow-auto">
-                            <form 
-                                onSubmit={handleSubmit} 
+                            <form
+                                onSubmit={handleSubmit}
                                 className="w-full flex flex-wrap gap-3">
-                                <div 
-                                    className="w-[200px]">
-                                    <ChooseMultiplePhoto 
-                                        onFileChange={handleFileChange} 
-                                        name="photos" />
+                                <div className="w-[250px]">
+                                    <Typography variant="subtitle1" gutterBottom>
+                                        {formData.id ? "Update Images" : "Upload Images"}
+                                    </Typography>
+                                    {formData.id && existingImages.length > 0 && (
+                                        <Typography variant="subtitle2" gutterBottom>Existing Images</Typography>
+                                    )}
+                                    <div className="mb-2 flex flex-wrap">
+                                        {formData.id && existingImages.map((url, index) => (
+                                            <div key={index} className="relative w-24 h-24 rounded-md overflow-hidden shadow-sm mr-2 mb-2 inline-block">
+                                                <img src={url} alt={`existing-${index}`} className="w-full h-full object-cover" />
+                                                <IconButton
+                                                    onClick={() => handleRemoveExistingImage(index)}
+                                                    size="small"
+                                                    sx={{
+                                                        position: 'absolute',
+                                                        top: -8,
+                                                        right: -8,
+                                                        bgcolor: 'error.main',
+                                                        color: 'white',
+                                                        '&:hover': {
+                                                            bgcolor: 'error.dark',
+                                                        },
+                                                    }}
+                                                >
+                                                    <CircleX size={16} />
+                                                </IconButton>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    <Typography variant="subtitle2" gutterBottom>Add New Images</Typography>
+                                    <div className="mb-2 flex flex-wrap">
+                                        {previewNewImages.map((preview, index) => (
+                                            <div key={index} className="relative w-24 h-24 rounded-md overflow-hidden shadow-sm mr-2 mb-2 inline-block">
+                                                <img src={preview} alt={`new-preview-${index}`} className="w-full h-full object-cover" />
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <input
+                                        ref={newImageInputRef}
+                                        type="file"
+                                        multiple
+                                        accept="image/*"
+                                        onChange={handleNewImageChange}
+                                        className="w-full mb-2"
+                                    />
+                                    {formData.id && existingImages.length > 0 && (
+                                        <Typography variant="caption" color="textSecondary">
+                                            You can remove existing images and add new ones.
+                                        </Typography>
+                                    )}
                                 </div>
-                                <div className="w-[calc(97%-200px)] flex flex-wrap gap-2">
+                                <div className="w-[calc(100% - 260px)] flex flex-wrap gap-2">
                                     <TextField
                                         label="Name"
                                         size="small"
@@ -320,7 +414,7 @@ export default function ProductList() {
                                         onChange={setSelectedType}
                                         className="w-[calc(98.5%/2)]"/>
                                     <div className="w-full border-b-[1px] border-gray-200">
-                                        <p>Sizes</p>
+                                        <Typography variant="subtitle2" gutterBottom>Sizes</Typography>
                                     </div>
                                     {sizes.map((size, index) => (
                                         <div key={index} className="w-[calc(98.5%/2)] flex gap-2">
@@ -348,16 +442,16 @@ export default function ProductList() {
                                     />
                                 </div>
                                 <div className="w-full flex justify-end gap-3 px-3 border-t-[1px] pt-3 border-gray-200">
-                                    <Button 
-                                        onClick={handleCloseModal} 
-                                        variant="contained" 
-                                        size="small" 
+                                    <Button
+                                        onClick={handleCloseModal}
+                                        variant="contained"
+                                        size="small"
                                         color="error">
                                         <CircleX />&ensp; Cancel
                                     </Button>
-                                    <Button 
-                                        type="submit" 
-                                        variant="contained" 
+                                    <Button
+                                        type="submit"
+                                        variant="contained"
                                         size="small">
                                         <PackagePlus />&ensp; {formData.id ? 'Update' : 'Create'}
                                     </Button>
