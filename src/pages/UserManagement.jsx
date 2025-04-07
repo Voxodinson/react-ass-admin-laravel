@@ -3,6 +3,7 @@ import React, {
     useEffect
 } from 'react';
 import TableComponent from '../components/Table';
+import UserImage from '../assets/images/user_image.jpg';
 import {
     Plus,
     CircleX,
@@ -22,7 +23,6 @@ import {
     Backdrop,
     Avatar,
     FormControl,
-    InputLabel,
     OutlinedInput,
     FormHelperText,
 } from '@mui/material';
@@ -58,9 +58,8 @@ const style = {
     transform: 'translate(-50%, -50%)',
     width: 600,
     bgcolor: 'background.paper',
-    border: '1px solid #000',
     boxShadow: 24,
-    p: 4,
+    p: 2,
 };
 
 export default function UserList() {
@@ -116,6 +115,11 @@ export default function UserList() {
             }));
             setProfilePreview(formData.profile || ""); // Keep the existing URL if no new file
         }
+    };
+
+    const handleRemoveImage = () => {
+        setProfileFile(null);
+        setProfilePreview(null);
     };
 
     const handleInputChange = (e) => {
@@ -205,31 +209,36 @@ export default function UserList() {
     };
 
     const handleDelete = async (id) => {
-            try {
-                await apiHandle.delete(`users/${id}`);
-                Message('User deleted successfully!', 'success');
-                fetchData();
-            } catch (error) {
-                console.error('Error deleting user:', error);
-                Message('Error deleting user.', 'error');
-            }
+        try {
+            await apiHandle.delete(`users/${id}`);
+            Message('User deleted successfully!', 'success');
+            fetchData();
+        } catch (error) {
+            console.error('Error deleting user:', error);
+            Message('Error deleting user.', 'error');
+        }
     };
 
     return (
-        <div className="w-full h-[81.5vh]">
-            <div className="w-full p-2 bg-white rounded-md flex items-center justify-end gap-2 mt-3 border-gray-200 border-[1px]">
-                <Button onClick={handleOpenModal} variant="contained" size="small">
+        <div 
+            className="w-full h-[81.5vh]">
+            <div 
+                className="w-full p-2 bg-white rounded-md flex items-center justify-end gap-2 mt-3 border-gray-200 border-[1px]">
+                <Button 
+                    onClick={handleOpenModal} 
+                    variant="contained" 
+                    size="small">
                     <Plus /> Add User
                 </Button>
             </div>
-            <div className="w-full mt-3 h-full overflow-auto">
+            <div 
+                className="w-full mt-3 h-full overflow-auto">
                 <TableComponent
                     columns={columns}
                     data={data}
                     per_page={20}
                     onEdit={handleEdit}
-                    onDelete={handleDelete}
-                />
+                    onDelete={handleDelete}/>
             </div>
             <Modal
                 open={openModal}
@@ -237,37 +246,90 @@ export default function UserList() {
                 closeAfterTransition
                 slots={{ backdrop: Backdrop }}
                 slotProps={{ backdrop: { timeout: 500 } }}
-                className="w-full flex items-center justify-center"
-            >
-                <Fade in={openModal}>
-                    <Box sx={style}>
-                        <Typography variant="h6" component="h2" gutterBottom>
+                className="w-full flex items-center justify-center">
+                <Fade 
+                    in={openModal}>
+                    <Box 
+                        sx={style}
+                        className=" rounded-md border-gray-200 border-[1px]">
+                        <Typography 
+                            variant="h6" 
+                            component="h2" 
+                            gutterBottom
+                            className='w-full text-center'>
                             {formData.id ? "Edit User" : "Create User"}
                         </Typography>
-                        <form onSubmit={handleSubmit} className="flex flex-col gap-3 mt-3">
-                            <Box sx={{ width: 120, height: 120, borderRadius: '50%', overflow: 'hidden', mb: 2 }}>
-                                <img
-                                    src={profilePreview}
-                                    alt="Profile Preview"
-                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                />
-                            </Box>
-                            <FormControl fullWidth margin="normal">
-                                <InputLabel htmlFor="profile">Profile Photo</InputLabel>
-                                <OutlinedInput
-                                    id="profile"
-                                    name="profile"
-                                    type="file"
-                                    onChange={handleFileChange}
-                                    inputProps={{ accept: 'image/*' }}
-                                />
-                                <FormHelperText>Upload a new profile photo (optional).</FormHelperText>
-                            </FormControl>
-                            <TextField label="Name" name="name" value={formData.name} onChange={handleInputChange} size="small" required />
-                            <TextField label="Email" name="email" value={formData.email} onChange={handleInputChange} size="small" required type="email" />
-                            <TextField label="Role" name="role" value={formData.role} onChange={handleInputChange} size="small" required />
-                            <TextField label="Address" name="address" value={formData.address} onChange={handleInputChange} size="small" />
-                            <TextField label="Date of Birth" name="dob" value={formData.dob} onChange={handleInputChange} size="small" type="date" InputLabelProps={{ shrink: true }} />
+                        <form 
+                            onSubmit={handleSubmit} 
+                            className="flex flex-col gap-3 mt-3">
+                            <div 
+                                className="w-full flex-col flex items-center justify-center">
+                                <Box 
+                                    className="w-[150px] relative h-[150px] rounded-full border-[1px] border-gray-200">
+                                    <img
+                                        src={profilePreview || UserImage}
+                                        alt="Profile Preview"
+                                        className='w-full h-full object-cover rounded-full'/>
+                                    {
+                                        profileFile && (
+                                            <CircleX 
+                                                onClick={() => handleRemoveImage()}
+                                                size={24} 
+                                                className=' absolute bottom-4.5 cursor-pointer right-1 z-20 bg-white text-red-500 rounded-full'/>
+                                        )
+                                    }
+                                </Box>
+                                <FormControl 
+                                    fullWidth 
+                                    margin="normal">
+                                    <OutlinedInput
+                                        id="profile"
+                                        name="profile"
+                                        type="file"
+                                        size='small'
+                                        onChange={handleFileChange}
+                                        inputProps={{ accept: 'image/*' }}/>
+                                    <FormHelperText>
+                                        Upload a new profile photo (optional).
+                                    </FormHelperText>
+                                </FormControl>
+                            </div>
+                            <TextField 
+                                label="Name" 
+                                name="name" 
+                                value={formData.name} 
+                                onChange={handleInputChange} 
+                                size="small" 
+                                required />
+                            <TextField 
+                                label="Role" 
+                                name="role" 
+                                value={formData.role} 
+                                onChange={handleInputChange} 
+                                size="small" 
+                                required />
+                            <TextField 
+                                label="Address" 
+                                name="address" 
+                                value={formData.address} 
+                                onChange={handleInputChange} 
+                                size="small" />
+                            <TextField 
+                                label="Date of Birth" 
+                                name="dob" 
+                                value={formData.dob} 
+                                onChange={handleInputChange} 
+                                size="small" 
+                                type="date" 
+                                InputLabelProps={{ shrink: true }} />
+                            <TextField 
+                                label="Email" 
+                                name="email" 
+                                value={formData.email} 
+                                onChange={handleInputChange} 
+                                size="small" 
+                                required 
+                                type="email" />
                             {!formData.id && (
                                 <TextField
                                     label="Password"
@@ -277,14 +339,25 @@ export default function UserList() {
                                     value={formData.password || ""}
                                     onChange={handleInputChange}
                                     className="w-full"
-                                    autoComplete="new-password"
-                                />
+                                    autoComplete="new-password"/>
                             )}
-                            <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 3 }}>
-                                <Button onClick={handleCloseModal} variant="contained" size="small" color="error" startIcon={<CircleX />}>
+                            <Box 
+                                className="w-full flex items-center justify-end gap-3">
+                                <Button 
+                                    onClick={handleCloseModal} 
+                                    variant="contained" 
+                                    size="small" 
+                                    color="error" 
+                                    startIcon={<CircleX />}>
                                     Cancel
                                 </Button>
-                                <Button type="submit" variant="contained" size="small" startIcon={<PackagePlus />}>
+                                <Button 
+                                    type="submit" 
+                                    variant="contained" 
+                                    size="small" 
+                                    startIcon={
+                                        <PackagePlus />
+                                    }>
                                     {formData.id ? 'Update' : 'Create'}
                                 </Button>
                             </Box>

@@ -11,8 +11,6 @@ import {
     Modal,
     Fade,
     Backdrop,
-    Grid,
-    Paper,
     CircularProgress,
 } from '@mui/material';
 import {
@@ -20,18 +18,18 @@ import {
     PackagePlus,
     Trash2
 } from 'lucide-react';
-import apiHandle from '../services/apiHandle'; // Assuming you have your API service
-
+import apiHandle from '../services/apiHandle';
+import NoImage from '../assets/images/no_image.jpg';
 const style = {
     position: 'absolute',
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 600, // Increased width for better layout
+    width: 800,
     bgcolor: 'background.paper',
     border: '1px solid #000',
     boxShadow: 24,
-    p: 4,
+    p: 2,
 };
 
 const CompanyProfileFormModal = ({ open, onClose, onSubmit, initialValues, isEdit }) => {
@@ -42,7 +40,7 @@ const CompanyProfileFormModal = ({ open, onClose, onSubmit, initialValues, isEdi
         address: '',
         website: '',
         description: '',
-        photo: null, // Holds the selected file
+        photo: null,
         store_locations: '',
     });
     const [loading, setLoading] = useState(false);
@@ -58,7 +56,7 @@ const CompanyProfileFormModal = ({ open, onClose, onSubmit, initialValues, isEdi
                 address: initialValues.address || '',
                 website: initialValues.website || '',
                 description: initialValues.description || '',
-                photo: null, // Reset file input on edit
+                photo: null,
                 store_locations: initialValues.store_locations || '',
             });
             setPhotoPreview(initialValues.photo_url || null);
@@ -129,6 +127,14 @@ const CompanyProfileFormModal = ({ open, onClose, onSubmit, initialValues, isEdi
         }
     };
 
+    const handleRemoveImage = () => {
+        setPhotoPreview(null);
+        setFormData(prevData => ({
+            ...prevData,
+            photo: null,
+        }));
+    };
+    
     const handleSubmit = async (event) => {
         event.preventDefault();
         setLoading(true);
@@ -183,7 +189,9 @@ const CompanyProfileFormModal = ({ open, onClose, onSubmit, initialValues, isEdi
             }}
             className='flex items-center justify-center'>
             <Fade in={open}>
-                <Box sx={style} className="rounded-md shadow-md p-3">
+                <Box 
+                    sx={style} 
+                    className="rounded-md max-h-[90vh] overflow-y-auto  shadow-md p-3">
                     <Typography
                         variant="h6"
                         gutterBottom>
@@ -193,23 +201,38 @@ const CompanyProfileFormModal = ({ open, onClose, onSubmit, initialValues, isEdi
                         component="form"
                         onSubmit={handleSubmit}
                         className='flex flex-wrap w-full gap-3'>
-                        <Box sx={{ width: 100, height: 100, borderRadius: '8px', overflow: 'hidden', mb: 2 }}>
-                            <img
-                                src={photoPreview}
-                                alt="Preview"
-                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                            />
-                        </Box>
-                        <FormControl fullWidth>
-                            <OutlinedInput
-                                id="photo"
-                                type="file"
-                                onChange={handlePhotoChange}
-                                inputProps={{ accept: 'image/*' }}
-                                aria-describedby="photo-helper-text"
-                            />
-                            <FormHelperText id="photo-helper-text">Upload a company logo or image.</FormHelperText>
-                        </FormControl>
+                        <div 
+                            className="w-full flex-col flex items-center justify-center">
+                            <Box 
+                                className="w-[150px] relative h-[150px] rounded-full border-[1px] border-gray-200">
+                                <img
+                                    src={photoPreview || NoImage}
+                                    alt="Profile Preview"
+                                    className='w-full h-full object-cover rounded-full'/>
+                                {
+                                    photoPreview && (
+                                        <CircleX 
+                                            onClick={() => handleRemoveImage()}
+                                            size={24} 
+                                            className=' absolute bottom-4.5 cursor-pointer right-1 z-20 bg-white text-red-500 rounded-full'/>
+                                    )
+                                }
+                            </Box>
+                            <FormControl 
+                                fullWidth 
+                                margin="normal">
+                                <OutlinedInput
+                                    id="profile"
+                                    name="profile"
+                                    type="file"
+                                    size='small'
+                                    onChange={handlePhotoChange}
+                                    inputProps={{ accept: 'image/*' }}/>
+                                <FormHelperText>
+                                Upload a company logo or image.
+                                </FormHelperText>
+                            </FormControl>
+                        </div>
                         <TextField
                             required
                             label="Company Name"
