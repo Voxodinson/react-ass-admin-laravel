@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import TableComponent from '../components/Table';
-import SeleMenu from '../components/SelectMenu';
+import SelectMenu from '../components/SelectMenu';
 import {
     Plus,
     CircleX,
@@ -121,6 +121,14 @@ export default function ProductList() {
             reader.readAsDataURL(files[i]);
         }
     };
+    const handleRemoveNewImage = (index) => {
+        const updatedImages = newImages.filter((_, i) => i !== index);
+        const updatedPreviews = previewNewImages.filter((_, i) => i !== index);
+    
+        setNewImages(updatedImages);
+        setPreviewNewImages(updatedPreviews);
+    };
+    
 
     const handleRemoveExistingImage = (index) => {
         const updatedImages = existingImages.filter((_, i) => i !== index);
@@ -245,10 +253,9 @@ export default function ProductList() {
                         label="Search Product"
                         id="outlined-size-small"
                         size="small"
-                        className="w-[calc(98%/2)]"
-                    />
+                        className="w-[calc(98%/2)]"/>
                     <div className="w-[300px]">
-                        <SeleMenu
+                        <SelectMenu
                             label="Product Type"
                             data={productType}
                             value={selectType}
@@ -259,7 +266,7 @@ export default function ProductList() {
                     onClick={handleOpenModal}
                     variant="contained"
                     size="small">
-                    <Plus />
+                    <Plus /> Create New Product
                 </Button>
             </div>
             <div className="w-full mt-3 h-full overflow-auto">
@@ -280,7 +287,9 @@ export default function ProductList() {
                 slotProps={{ backdrop: { timeout: 500 } }}
                 className="w-full flex items-center justify-center">
                 <Fade in={openModal}>
-                    <Box sx={style} className="bg-white z-50 overflow-hidden rounded-md shadow-md border-gray-200 border-[1px]">
+                    <Box 
+                        sx={style} 
+                        className="bg-white z-50 overflow-hidden rounded-md shadow-md border-gray-200 border-[1px]">
                         <div
                             className="w-full px-4 py-1 bg-[#6592a3] text-white flex justify-between items-center">
                             <Typography
@@ -293,46 +302,60 @@ export default function ProductList() {
                                 onClick={handleCloseModal} />
                         </div>
                         <div
-                            className="w-full h-fit pt-6 pb-3 px-3 max-h-[80vh] overflow-auto">
+                            className="w-full h-fit pt-3 pb-3 px-3 max-h-[80vh] overflow-auto">
                             <form
                                 onSubmit={handleSubmit}
                                 className="w-full flex flex-wrap gap-3">
-                                <div className="w-[250px]">
-                                    <Typography variant="subtitle1" gutterBottom>
+                                <div 
+                                    className="w-full p-3 rounded-md border-[1px] border-gray-200 bg-[#E4EFE7]">
+                                    <Typography 
+                                        variant="subtitle1" 
+                                        gutterBottom>
                                         {formData.id ? "Update Images" : "Upload Images"}
                                     </Typography>
                                     {formData.id && existingImages.length > 0 && (
-                                        <Typography variant="subtitle2" gutterBottom>Existing Images</Typography>
+                                        <Typography 
+                                            variant="subtitle2" 
+                                            gutterBottom>
+                                            Existing Images
+                                        </Typography>
                                     )}
-                                    <div className="mb-2 flex flex-wrap">
+                                    <div 
+                                        className="mb-2 flex flex-wrap p-3 rounded-md bg-white border-[1px] border-gray-200">
                                         {formData.id && existingImages.map((url, index) => (
-                                            <div key={index} className="relative w-24 h-24 rounded-md overflow-hidden shadow-sm mr-2 mb-2 inline-block">
-                                                <img src={url} alt={`existing-${index}`} className="w-full h-full object-cover" />
-                                                <IconButton
+                                            <div 
+                                                key={index} 
+                                                className="relative w-24 h-24 bg-white rounded-md overflow-hidden mr-2 mb-2 inline-block">
+                                                <img 
+                                                    src={url} 
+                                                    alt={`existing-${index}`} 
+                                                    className="w-full h-full object-cover" />
+                                                <CircleX 
                                                     onClick={() => handleRemoveExistingImage(index)}
-                                                    size="small"
-                                                    sx={{
-                                                        position: 'absolute',
-                                                        top: -8,
-                                                        right: -8,
-                                                        bgcolor: 'error.main',
-                                                        color: 'white',
-                                                        '&:hover': {
-                                                            bgcolor: 'error.dark',
-                                                        },
-                                                    }}
-                                                >
-                                                    <CircleX size={16} />
-                                                </IconButton>
+                                                    size={20} 
+                                                    className=' absolute top-0.5 cursor-pointer right-0.5 z-20 bg-white text-red-500 rounded-full'/>
                                             </div>
                                         ))}
                                     </div>
-
-                                    <Typography variant="subtitle2" gutterBottom>Add New Images</Typography>
-                                    <div className="mb-2 flex flex-wrap">
+                                    <Typography 
+                                        variant="subtitle2" 
+                                        gutterBottom>
+                                        Add New Images
+                                    </Typography>
+                                    <div 
+                                        className="mb-2 flex flex-wrap w-full gap-2 p-3 rounded-md bg-white">
                                         {previewNewImages.map((preview, index) => (
-                                            <div key={index} className="relative w-24 h-24 rounded-md overflow-hidden shadow-sm mr-2 mb-2 inline-block">
-                                                <img src={preview} alt={`new-preview-${index}`} className="w-full h-full object-cover" />
+                                            <div 
+                                                key={index} 
+                                                className="relative w-24 h-24 bg-white border-[1px] border-gray-200 rounded-md overflow-hidden inline-block">
+                                                <img 
+                                                    src={preview} 
+                                                    alt={`new-preview-${index}`} 
+                                                    className="w-full h-full object-cover" />
+                                                <CircleX 
+                                                    onClick={() => handleRemoveNewImage(index)}
+                                                    size={20} 
+                                                    className=' absolute top-0.5 cursor-pointer right-0.5 z-20 bg-white text-red-500 rounded-full'/>
                                             </div>
                                         ))}
                                     </div>
@@ -342,95 +365,103 @@ export default function ProductList() {
                                         multiple
                                         accept="image/*"
                                         onChange={handleNewImageChange}
-                                        className="w-full mb-2"
+                                        className="w-full mb-2 p-3 rounded-md border-[1px] border-gray-200 bg-white"
                                     />
                                     {formData.id && existingImages.length > 0 && (
-                                        <Typography variant="caption" color="textSecondary">
+                                        <Typography 
+                                            variant="caption" 
+                                            color="textSecondary">
                                             You can remove existing images and add new ones.
                                         </Typography>
                                     )}
                                 </div>
-                                <div className="w-[calc(100% - 260px)] flex flex-wrap gap-2">
+                                <div className="w-[calc(100% - 260px)] flex flex-wrap gap-y-3 gap-2">
                                     <TextField
                                         label="Name"
                                         size="small"
                                         name="name"
                                         value={formData.name || ""}
                                         onChange={handleInputChange}
-                                        className="w-[calc(98.5%/2)]"
-                                    />
+                                        className="w-[calc(98.5%/2)]"/>
                                     <TextField
                                         label="Price"
                                         size="small"
                                         name="price"
                                         value={formData.price || ""}
                                         onChange={handleInputChange}
-                                        className="w-[calc(98.5%/2)]"
-                                    />
+                                        className="w-[calc(98.5%/2)]"/>
                                     <TextField
                                         label="Color"
                                         size="small"
                                         name="color"
                                         value={formData.color || ""}
                                         onChange={handleInputChange}
-                                        className="w-[calc(98.5%/2)]"
-                                    />
+                                        className="w-[calc(98.5%/2)]"/>
                                     <TextField
                                         label="Brand"
                                         size="small"
                                         name="brand"
                                         value={formData.brand || ""}
                                         onChange={handleInputChange}
-                                        className="w-[calc(98.5%/2)]"
-                                    />
+                                        className="w-[calc(98.5%/2)]" />
                                     <TextField
                                         label="Category"
                                         size="small"
                                         name="category"
                                         value={formData.category || ""}
                                         onChange={handleInputChange}
-                                        className="w-[calc(98.5%/2)]"
-                                    />
+                                        className="w-[calc(98.5%/2)]"/>
                                     <TextField
                                         label="Rating"
                                         size="small"
                                         name="rating"
                                         value={formData.rating || ""}
                                         onChange={handleInputChange}
-                                        className="w-[calc(98.5%/2)]"
-                                    />
+                                        className="w-[calc(98.5%/2)]"/>
                                     <TextField
                                         label="Stock"
                                         size="small"
                                         name="stock"
                                         value={formData.stock || ""}
                                         onChange={handleInputChange}
-                                        className="w-[calc(98.5%/2)]"
-                                    />
-                                    <SeleMenu
-                                        label="Product Type"
-                                        data={productType}
-                                        value={selectType}
-                                        onChange={setSelectedType}
                                         className="w-[calc(98.5%/2)]"/>
-                                    <div className="w-full border-b-[1px] border-gray-200">
-                                        <Typography variant="subtitle2" gutterBottom>Sizes</Typography>
+                                    <div 
+                                        className="w-[calc(98.5%/2)]">
+                                        <SelectMenu
+                                            label="Product For"
+                                            data={productType}
+                                            value={selectType}
+                                            onChange={setSelectedType}
+                                            className=""/>
+                                    </div>
+                                    <div 
+                                        className="w-full border-b-[1px] border-gray-200">
+                                        <Typography 
+                                            variant="subtitle2" 
+                                            gutterBottom>Sizes</Typography>
                                     </div>
                                     {sizes.map((size, index) => (
-                                        <div key={index} className="w-[calc(98.5%/2)] flex gap-2">
+                                        <div 
+                                            key={index} 
+                                            className="w-[calc(98.5%/2)] flex gap-2">
                                             <TextField
                                                 label={`Size ${index + 1}`}
                                                 value={size}
                                                 onChange={(e) => handleInputChangeSize(index, e)}
                                                 size="small"
-                                                className="w-full"
-                                            />
-                                            <Button variant="outlined" color="error" onClick={() => removeSizeField(index)}>
+                                                className="w-full" />
+                                            <Button 
+                                                variant="outlined" 
+                                                color="error" 
+                                                onClick={() => removeSizeField(index)}>
                                                 <Trash2 />
                                             </Button>
                                         </div>
                                     ))}
-                                    <Button variant="contained" onClick={addSizeField} className="w-full">
+                                    <Button 
+                                        variant="contained" 
+                                        onClick={addSizeField} 
+                                        className="w-full">
                                         Add Size
                                     </Button>
                                     <TextareaAutosize
@@ -438,8 +469,7 @@ export default function ProductList() {
                                         value={formData.description}
                                         onChange={handleInputChange}
                                         placeholder="Enter product description..."
-                                        className="w-full p-2 rounded-md border-[1px] border-gray-300"
-                                    />
+                                        className="w-full p-2 rounded-md border-[1px] border-gray-300"/>
                                 </div>
                                 <div className="w-full flex justify-end gap-3 px-3 border-t-[1px] pt-3 border-gray-200">
                                     <Button
