@@ -93,13 +93,6 @@ const Sidebar = () => {
                             <GalleryHorizontalEnd size={18}/> Social Media
                         </NavLink>
                     </li>
-                    <li>
-                        <NavLink 
-                            to="/setting" 
-                            className={({ isActive }) => `flex gap-3 text-[.8rem] text-gray-800 hover:bg-[#6592a3] hover:text-white  py-2 px-4 rounded-sm ${isActive ? 'bg-[#5F99AE] text-white hover:bg-[#5F99AE]' : ''}`}>
-                            <Settings size={18}/> Setting
-                        </NavLink>
-                    </li>
                 </ul>
             </div>
             <div 

@@ -19,6 +19,7 @@
     "@tailwindcss/vite": "^4.0.17",
     "axios": "^1.8.4",
     "bootstrap": "^5.3.3",
+    "date-fns": "^4.1.0",
     "lucide-react": "^0.484.0",
     "react": "^19.0.0",
     "react-bootstrap": "^2.10.9",
