@@ -1,9 +1,11 @@
-import React from 'react'
+import React, { useState } from "react";
 import { NavLink } from 'react-router-dom';
+import ConfirmDialog from "./ConfirmDialog";
+import { useAuth } from '../context/AuthContext';
+
 import {
     LayoutGrid,
     LayoutList,
-    Settings,
     UserPen,
     LogOut,
     ListChecks,
@@ -12,6 +14,27 @@ import {
     GalleryHorizontalEnd
 } from 'lucide-react';
 const Sidebar = () => {
+    const [isOpenDialog, setOpenDialog] = useState(false);
+    const [anchorEl, setAnchorEl] = useState(null);
+    const { logout } = useAuth();
+    
+    const handleClosePopover = () => {
+        setAnchorEl(null);
+    };
+
+    const handleOpenDialog = () => {
+        handleClosePopover();
+        setOpenDialog(true);
+    };
+
+    const handleCloseDialog = () => {
+        setOpenDialog(false);
+    };
+
+    const handleConfirm = () => {
+        logout();
+        setOpenDialog(false);
+    };
     return (
         <div
             className='w-full h-full bg-white relative overflow-hidden rounded-md border-[1px] border-gray-200 '>
@@ -98,10 +121,17 @@ const Sidebar = () => {
             <div 
                 className="w-full absolute bottom-0 h-[60px] px-2 border-t-[1px] border-gray-200 flex items-center justify-center bg-white z-20">
                 <button
+                    onClick={handleOpenDialog}
                     className='flex gap-3 px-4 py-2 hover:bg-[#6592a3] bg-[#6592a3] hover:text-white cursor-pointer w-full rounded-sm text-white'>
                     <LogOut />Logout
                 </button>
             </div>
+            <ConfirmDialog
+                open={isOpenDialog}
+                onConfirm={handleConfirm}
+                onClose={handleCloseDialog}
+                title="Are you sure! You want to sign out?"
+                description="This will log you out of the application."/>
         </div>
     )
 }
