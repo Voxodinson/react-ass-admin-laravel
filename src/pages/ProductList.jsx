@@ -16,8 +16,6 @@ import Modal from '@mui/material/Modal';
 import Fade from '@mui/material/Fade';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
-import IconButton from '@mui/material/IconButton';
-
 const columns = [
     { id: 'image', label: 'Image', align: 'left' },
     { id: 'name', label: 'Name', align: 'left' },
