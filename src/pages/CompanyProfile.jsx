@@ -440,7 +440,7 @@ const CompanyProfilePage = () => {
         setLoading(true);
         setError(null);
         try {
-            const result = await apiHandle.get('companies/10');
+            const result = await apiHandle.get('companies/1');
             setCompanyData(result);
         } catch (error) {
             console.error("Error fetching company:", error);
